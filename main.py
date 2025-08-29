@@ -4,22 +4,35 @@ from typing import List
 
 app = FastAPI()
 
+# Replace these with your details
 FULL_NAME = "john_doe"
-DOB = "17091999"
+DOB = "17091999"   # ddmmyyyy
 EMAIL = "john@xyz.com"
 ROLL_NUMBER = "ABCD123"
 
 class InputData(BaseModel):
     data: List[str]
 
+# Health check (so browser GET works on root "/")
+@app.get("/")
+async def root():
+    return {"message": "API is live! Use GET/POST on /bfhl"}
+
+# /bfhl supports both GET and POST now
+@app.get("/bfhl")
+async def get_bfhl():
+    return {
+        "is_success": True,
+        "user_id": f"{FULL_NAME}_{DOB}",
+        "email": EMAIL,
+        "roll_number": ROLL_NUMBER
+    }
+
 @app.post("/bfhl")
-async def process_data(input_data: InputData):
+async def post_bfhl(input_data: InputData):
     try:
         data = input_data.data
-        odd_numbers = []
-        even_numbers = []
-        alphabets = []
-        special_characters = []
+        odd_numbers, even_numbers, alphabets, special_characters = [], [], [], []
         total_sum = 0
 
         for item in data:
@@ -35,6 +48,7 @@ async def process_data(input_data: InputData):
             else:
                 special_characters.append(item)
 
+        # reverse + alternating caps
         concat_str = "".join(alphabets).lower()[::-1]
         alt_caps = "".join(
             ch.upper() if i % 2 == 0 else ch.lower()
